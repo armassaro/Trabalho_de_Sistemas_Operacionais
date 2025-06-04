@@ -23,12 +23,7 @@ public class Main {
         return true;
     }
     
-    // Método para separar 
-    private static void addProcessesToQueue(String[] fileContent) { 
-        
-    }
-    
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         String fileName;
         String[] fileContent;
         List<String[]> fileContentMatrix = new ArrayList<>();
@@ -83,10 +78,10 @@ public class Main {
                     RoundRobin roundRobin = new RoundRobin();
                     
                     for(int a = 0; a < fileContentMatrix.get(0).length; a++) { 
-                        roundRobin.addProcessToAllProcessesQueue(new Process(fileContentMatrix.get(0)[a], fileContentMatrix.get(1)[a], fileContentMatrix.get(2)[a]));
+                        roundRobin.addProcessToAllProcessesList(new Process(fileContentMatrix.get(0)[a], fileContentMatrix.get(1)[a], fileContentMatrix.get(2)[a]));
                     }
-                    RoundRobin.showQueueContent(roundRobin.getAllProcessesQueue());
-                    roundRobin.run(true, true);
+                    RoundRobin.showListContent(roundRobin.getAllProcessesList());
+                    roundRobin.run(true, false);
                 }
                 case 2 -> {
                 }

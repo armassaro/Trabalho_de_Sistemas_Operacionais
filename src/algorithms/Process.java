@@ -9,8 +9,9 @@ public class Process {
     private Integer processTime = 0;
     private Integer waitingTime = 0;
     private Integer arrivalTime = 0;
+    private String flag = "";
 
-
+    
     public Process(String id, String processTime, String arrivalTime) {
         this.processTime = Integer.valueOf(processTime);
         this.arrivalTime = Integer.valueOf(arrivalTime);
@@ -65,6 +66,14 @@ public class Process {
     
     public int incrementWaitingTime() { 
         return ++waitingTime;
+    }
+
+    public String getFlag() {
+        return flag;
+    }
+
+    public void setFlag(String flag) {
+        this.flag = flag;
     }
 
     @Override
