@@ -1,91 +1,136 @@
 package algorithms;
-import java.util.ArrayDeque;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Scanner;
 
 /**
  *
  * @author armassaro
  */
 public class RoundRobin {
-    // Instancia fila circular simples duplamente encadeada
-    // runtimeProcessesQueue: fila para os processos sendo executados
     private Queue<Process> runtimeProcessesQueue = new LinkedList<>();
-    // allProcessesList: fila com todos os processos a serem alocados
     private List<Process> allProcessesList = new ArrayList<>();
-    // finishedProcessesList: lista com todos os processos terminados
     private List<Process> finishedProcessesList = new ArrayList<>();
     private Process executingProcess = null;
+    private int quantum;
     private int totalTime = 0;
-    
-    // Pega o primeiro elemento da fila e coloca no último lugar da fila
-    private void bringFirstElementToLastIndex() { 
-        try { 
-            runtimeProcessesQueue.add(runtimeProcessesQueue.remove());
-        }
-        catch(NoSuchElementException e) { 
-            System.out.println("O arquivo não possui processos válidos!");
+
+    private void bringFirstElementToLastIndex() {
+        if (!runtimeProcessesQueue.isEmpty()) {
+            runtimeProcessesQueue.add(runtimeProcessesQueue.poll());
         }
     }
-    
-    // showDialogues: habilita ou desabilita prints de informações da execução dos processos
-    // fastExecutionMode: habilita ou desabilita a execução rápida da simulação do Round Robin
-    public String run(boolean showDialogues, boolean fastExecutionMode) throws InterruptedException { 
-        String timeline = "0";
+
+    public void run(boolean showDialogues, boolean fastExecutionMode) {
+        Scanner sc = ScannerSingleton.getInstance();
         System.out.printf("\nDigite o tempo de quantum: ");
-        Integer quantum = Integer.parseInt(ScannerSingleton.getInstance().next());
+        this.quantum = Integer.parseInt(sc.next());
+        String timeline = "|0|";
+
         int allProcessesListInitialSize = allProcessesList.size();
-        
-        // Espera o primeiro processo a ser executado
-        waitFirstExecutingProcessLoop();
-        
-        // Continua o Round Robin enquanto a fila de todos os processos continua com elementos
-        while(finishedProcessesList.size() < allProcessesListInitialSize) { 
-            for(int a = 0; a < quantum; a++) { 
-                // Mostra informações do processo sendo executado, caso showDialogues esteja como true
-                if(showDialogues) { 
-                    System.out.println("\n====================\n");
-                    System.out.println("Processo em execução: " + executingProcess.getId());
-                    System.out.println("Tempo de execução do processo: " + executingProcess.getProcessTime());
-                    System.out.println("Tempo de espera do processo: " + executingProcess.getWaitingTime());
-                    System.out.println("Tempo total: " + totalTime);
-                }
-                
-                // Simula passagem de tempo
-                Thread.sleep(1000);
-                
-                // Aumenta o tempo de espera para todos os processos que estão esperando na allProcessesList, menos o que for inserido no argumento
-                incrementWaitingTimeForAllProcesses();
 
-                // Se o tempo de processo em execução for igual a zero, quebra o laço for e passa para o próximo processo
-                try { 
-                    if(executingProcess.decrementProcessTime() == 0) { 
-                        // Retira o processo terminado da fila
-                        finishedProcessesList.add(runtimeProcessesQueue.remove());
-                        break;
-                    }
+        moveArrivingProcessToRuntimeQueue();
+
+        executingProcess = runtimeProcessesQueue.peek();
+
+        while (finishedProcessesList.size() < allProcessesListInitialSize) {
+            int executionCount = 0;
+
+            while (executionCount < quantum) {
+                if (executingProcess == null) break;
+                // tick(): Realiza testes de condição para verificar coisas como se existem próximos processos a serem implementados do allProcessesList para runtimeProcessesQueue
+                tick(showDialogues, fastExecutionMode);
+                
+                executionCount++;
+                
+                // Se o processo termina o tempo de processamento, constrói na string com os tempos 
+                if (executingProcess.getProcessTime() <= 0) {
+                    finishedProcessesList.add(runtimeProcessesQueue.poll());
+                    
+                    timeline = timeline + "----" + executingProcess.getId() + "----" + "|" + totalTime + "|";
+                    break;
                 }
-                catch(NullPointerException e) {}
-                
-                checkNextIncomingProcess();
-                
-                totalTime++;
             }
-                
-            // Decrementa o tempo de processamento do processo selecionado
-            timeline =  timeline + "----" + executingProcess.getId() + "----" + totalTime;
 
-            // Coloca o primeiro elemento na runtimeProcessesQueue no último lugar
-            bringFirstElementToLastIndex();
+
+            if(executingProcess != null && executingProcess.getProcessTime() > 0) { 
+                // Constrói a String que constitui a linha de tempo de execução
+                timeline = timeline + "----" + executingProcess.getId() + "----" + "|" + totalTime + "|";
+                
+                // Coloca o último elemento em execução para o último índice da fila e depois reatribui executingProcess
+                bringFirstElementToLastIndex();
+            }
+            
+            executingProcess = runtimeProcessesQueue.peek();
+            
         }
         
-        return timeline; 
-   }
+        System.out.println("\nRelatório de execução do algoritmo Round Robin:");
+        System.out.println("Linha do tempo de execução: " + timeline);
+        System.out.println("Tempo médio de espera: " + calculateAverageWaitingTime(finishedProcessesList) + "s");
+    }
+
+    private void tick(boolean showDialogues, boolean fastExecutionMode) {
+        if (!fastExecutionMode) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        incrementWaitingTimeForAllProcesses(executingProcess);
+        moveArrivingProcessToRuntimeQueue();
+
+        if (executingProcess != null) {
+            executingProcess.decrementProcessTime();
+        }
+
+        if (showDialogues && executingProcess != null) {
+            System.out.println("\n====================\n");
+            System.out.println("Processo em execução: " + executingProcess.getId());
+            System.out.println("Tempo restante do processo: " + executingProcess.getProcessTime());
+            System.out.println("Tempo de espera do processo: " + executingProcess.getWaitingTime());
+            System.out.println("Tempo total: " + totalTime);
+        }
+        
+        totalTime++;
+    }
+    
+    public static int calculateAverageWaitingTime(List<Process> processesList) { 
+        int total = 0;
+        
+        for(Process p : processesList) { 
+            total = total + p.getWaitingTime();
+        }
+        
+        // Retorna a média
+        return total / processesList.size();
+    }
+    
+    private void incrementWaitingTimeForAllProcesses(Process currentProcess) {
+        for (Process p : runtimeProcessesQueue) {
+            if (p != currentProcess) {
+                p.incrementWaitingTime();
+            }
+        }
+    }
+
+    private void moveArrivingProcessToRuntimeQueue() {
+        List<Process> arriving = new ArrayList<>();
+        for (Process p : allProcessesList) {
+            if (p.getArrivalTime() == totalTime) {
+                arriving.add(p);
+            }
+        }
+        allProcessesList.removeAll(arriving);
+        runtimeProcessesQueue.addAll(arriving);
+    }
+
+    // ================= Getters e Setters =================
 
     public Queue<Process> getRuntimeQueue() {
         return runtimeProcessesQueue;
@@ -102,74 +147,28 @@ public class RoundRobin {
     public void setAllProcessesList(List<Process> allProcessesList) {
         this.allProcessesList = allProcessesList;
     }
-    
-    public void addProcessToRuntimeQueue(Process process) { 
+
+    public void addProcessToRuntimeQueue(Process process) {
         this.runtimeProcessesQueue.add(process);
     }
-    
-    public void removeFirstProcessFromRuntimeQueue() { 
-        this.runtimeProcessesQueue.remove();
-    }
-    
-    public void incrementWaitingTimeForAllProcesses() { 
-        for(Process p : runtimeProcessesQueue) { 
-            if(!p.equals(executingProcess)) { 
-                p.incrementProcessTime();
-            }
-        }
-    }
-    
-    public static void showListContent(List<Process> processesList) { 
-        for(Process p : processesList) { 
-            System.out.println("\n====================\n");
-            System.out.println("ID do processo: " + p.getId());
-            System.out.println("Tempo de processamento: " + p.getProcessTime());
-            System.out.println("Tempo de chegada do processo: " + p.getArrivalTime());   
-        }
-    }
-    
-    public static void showArrayContent(String[] str) { 
-        for(String s : str) { 
-            System.out.println(s);
-        }
-    }
-    
-    public void addProcessToAllProcessesList(Process process) { 
+
+    public void addProcessToAllProcessesList(Process process) {
         this.allProcessesList.add(process);
     }
-    
-    public void removeProcessFromAllProcessesList(Process process) {
-        this.allProcessesList.remove(process);
+
+    public List<Process> getFinishedProcessesList() {
+        return finishedProcessesList;
     }
-    
-    // Checa qual o próximo processo a ser incluído em runtimeProcessesQueue, caso não houver retorna null
-    private Process checkNextIncomingProcess() { 
-        for(int a = 0; a < allProcessesList.size(); a++) { 
-            if(allProcessesList.get(a).getArrivalTime() == totalTime) { 
-                return allProcessesList.remove(a);
-            }
-        }
-        
-        return null;
-    }
-    
-    private void waitFirstExecutingProcessLoop() { 
-        while(executingProcess == null) { 
-            try {
-                // Simula passagem de tempo
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                System.getLogger(RoundRobin.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-            }
-            
-            // Verifica qual o próximo processo a ser incluído no runtimeProcessesQueue
-            executingProcess = checkNextIncomingProcess();
-            if(executingProcess != null) { 
-                runtimeProcessesQueue.add(executingProcess);
-            }
-            else {
-                System.out.println("Nenhum processo em execução...");
-            }
+
+    // ================= Métodos auxiliares =================
+
+    public static void showListContent(List<Process> processesList) {
+        for (Process p : processesList) {
+            System.out.println("\n====================\n");
+            System.out.println("ID do processo: " + p.getId());
+            System.out.println("Tempo de processamento restante: " + p.getProcessTime());
+            System.out.println("Tempo de chegada do processo: " + p.getArrivalTime());
+            System.out.println("Tempo de espera do processo: " + p.getWaitingTime());
         }
     }
 }

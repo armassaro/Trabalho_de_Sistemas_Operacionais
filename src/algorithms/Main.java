@@ -71,22 +71,26 @@ public class Main {
         System.out.println("1 - Round Robin");
         System.out.println("2 - Shortest Job First");
         System.out.printf("\nDigite a sua opção: ");
-        
-        while(true) { 
-            switch(s.nextInt()) { 
-                case 1 -> {
-                    RoundRobin roundRobin = new RoundRobin();
-                    
-                    for(int a = 0; a < fileContentMatrix.get(0).length; a++) { 
-                        roundRobin.addProcessToAllProcessesList(new Process(fileContentMatrix.get(0)[a], fileContentMatrix.get(1)[a], fileContentMatrix.get(2)[a]));
-                    }
-                    RoundRobin.showListContent(roundRobin.getAllProcessesList());
-                    roundRobin.run(true, false);
+         
+        switch(s.nextInt()) { 
+            case 1 -> {
+                RoundRobin roundRobin = new RoundRobin();
+
+                for(int a = 0; a < fileContentMatrix.get(0).length; a++) { 
+                    roundRobin.addProcessToAllProcessesList(new Process(fileContentMatrix.get(0)[a], fileContentMatrix.get(1)[a], fileContentMatrix.get(2)[a]));
                 }
-                case 2 -> {
-                }
-                default -> System.out.println("Opção inválida!");
+                RoundRobin.showListContent(roundRobin.getAllProcessesList());
+                // Roda o Round Robin, as informações da execução são mostradas ao fim do código
+                
+                // roundRobin.run(false, true): roda o RoundRobin sem printar diálogos de processos em execução e com fast mode.
+                 roundRobin.run(false, true);
+                
+                // roundRobin.run(true, false): roda o RoundRobin printando diálogos e simulando a execução com quantum e passo de 1 segundo
+//                roundRobin.run(true, false);
             }
+            case 2 -> {
+            }
+            default -> System.out.println("Opção inválida!");
         }
         
     }
