@@ -67,7 +67,7 @@ public class RoundRobin {
             executingProcess = runtimeProcessesQueue.peek();
             
         }
-        
+        //.
         System.out.println("\nRelatório de execução do algoritmo Round Robin:");
         System.out.println("Linha do tempo de execução: " + timeline);
         System.out.println("Tempo médio de espera: " + calculateAverageWaitingTime(finishedProcessesList) + "s");
