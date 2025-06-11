@@ -6,12 +6,14 @@ package algorithms;
  */
 public class Process {
     private String id = "";
+    // Tempo de processamento de processo
     private Integer processTime = 0;
+    // Tempo de espera do processo
     private Integer waitingTime = 0;
+    // Tempo de chegada do processo
     private Integer arrivalTime = 0;
-    private String flag = "";
 
-    
+    // Recebe as variáveis vindas do arquivo de texto
     public Process(String id, String processTime, String arrivalTime) {
         this.processTime = Integer.valueOf(processTime);
         this.arrivalTime = Integer.valueOf(arrivalTime);
@@ -50,8 +52,6 @@ public class Process {
         this.arrivalTime = arrivalTime;
     }
     
-    
-    
     public int decrementProcessTime() { 
         return --processTime;
     }
@@ -66,14 +66,6 @@ public class Process {
     
     public int incrementWaitingTime() { 
         return ++waitingTime;
-    }
-
-    public String getFlag() {
-        return flag;
-    }
-
-    public void setFlag(String flag) {
-        this.flag = flag;
     }
 
     @Override

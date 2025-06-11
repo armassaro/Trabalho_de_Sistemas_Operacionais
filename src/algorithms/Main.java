@@ -53,7 +53,9 @@ public class Main {
                     throw new IOException();
                 }
             }
+            // Lança exceção caso o nome de arquivo digitado seja incorreto para o diretório atual do usuário
             catch(IOException e) { 
+                // Printa todos os arquivos disponíveis no diretório atual
                 String filePath = System.getProperty("user.dir");
                 File[] filesList = new File(filePath).listFiles();
                 System.out.printf("Arquivos disponíveis: ");
@@ -65,8 +67,7 @@ public class Main {
                 fileName = s.next();
             }
         }
-        
-        System.out.println("Tempo de chegada do processo: ");
+       
         System.out.println("\nOs métodos disponíveis para escalonamento de processos são: ");
         System.out.println("1 - Round Robin");
         System.out.println("2 - Shortest Job First");
@@ -79,6 +80,7 @@ public class Main {
                 for(int a = 0; a < fileContentMatrix.get(0).length; a++) { 
                     roundRobin.addProcessToAllProcessesList(new Process(fileContentMatrix.get(0)[a], fileContentMatrix.get(1)[a], fileContentMatrix.get(2)[a]));
                 }
+                
                 RoundRobin.showListContent(roundRobin.getAllProcessesList());
                 // Roda o Round Robin, as informações da execução são mostradas ao fim do código
                 
