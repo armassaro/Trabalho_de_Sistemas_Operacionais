@@ -80,14 +80,15 @@ public class Main {
                 for(int a = 0; a < fileContentMatrix.get(0).length; a++) { 
                     roundRobin.addProcessToAllProcessesList(new Process(fileContentMatrix.get(0)[a], fileContentMatrix.get(1)[a], fileContentMatrix.get(2)[a]));
                 }
+                
+                // Mostra todos os processos coletados a partir do arquivo
                 RoundRobin.showListContent(roundRobin.getAllProcessesList());
-                // Roda o Round Robin, as informações da execução são mostradas ao fim do código
                 
                 // roundRobin.run(false, true): roda o RoundRobin sem printar diálogos de processos em execução e com fast mode.
-                 roundRobin.run(false, true);
+                roundRobin.run(false, true);
                 
                 // roundRobin.run(true, false): roda o RoundRobin printando diálogos e simulando a execução com quantum e passo de 1 segundo
-//                roundRobin.run(true, false);
+//              roundRobin.run(true, false);
             }
             // SJF
             case 2 -> {
