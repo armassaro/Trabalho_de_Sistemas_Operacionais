@@ -73,6 +73,7 @@ public class Main {
         System.out.printf("\nDigite a sua opção: ");
          
         switch(s.nextInt()) { 
+            // Round robin
             case 1 -> {
                 RoundRobin roundRobin = new RoundRobin();
 
@@ -88,7 +89,19 @@ public class Main {
                 // roundRobin.run(true, false): roda o RoundRobin printando diálogos e simulando a execução com quantum e passo de 1 segundo
 //                roundRobin.run(true, false);
             }
+            // SJF
             case 2 -> {
+                SJF sjf = new SJF(true, true);
+                List<Process> allProcessesList = sjf.getAllProcessesList();
+
+                // Coleta todos os processos no arquivo e joga pra lista de todos os processos
+                for(int a = 0; a < fileContentMatrix.get(0).length; a++) { 
+                    allProcessesList.add(new Process(fileContentMatrix.get(0)[a], fileContentMatrix.get(1)[a], fileContentMatrix.get(2)[a]));
+                }
+
+                sjf.setAllProcessesList(allProcessesList);
+
+                sjf.run();
             }
             default -> System.out.println("Opção inválida!");
         }
