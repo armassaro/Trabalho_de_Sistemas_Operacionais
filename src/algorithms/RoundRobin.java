@@ -159,7 +159,7 @@ public class RoundRobin {
     public List<Process> getFinishedProcessesList() {
         return finishedProcessesList;
     }
-
+    
     // ================= Métodos auxiliares =================
 
     public static void showListContent(List<Process> processesList) {
@@ -168,7 +168,6 @@ public class RoundRobin {
             System.out.println("ID do processo: " + p.getId());
             System.out.println("Tempo de processamento restante: " + p.getProcessTime());
             System.out.println("Tempo de chegada do processo: " + p.getArrivalTime());
-            System.out.println("Tempo de espera do processo: " + p.getWaitingTime());
         }
     }
 }
