@@ -66,7 +66,6 @@ public class Main {
             }
         }
         
-        System.out.println("Tempo de chegada do processo: ");
         System.out.println("\nOs métodos disponíveis para escalonamento de processos são: ");
         System.out.println("1 - Round Robin");
         System.out.println("2 - Shortest Job First");

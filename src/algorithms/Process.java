@@ -9,15 +9,23 @@ public class Process {
     private Integer processTime = 0;
     private Integer waitingTime = 0;
     private Integer arrivalTime = 0;
-    private String flag = "";
+    // Define o tempo de resposta como -1 para que o código seja capaz de identificar se o tempo de resposta de processo já foi calculado
+    private Integer responseTime = -1;
 
-    
     public Process(String id, String processTime, String arrivalTime) {
         this.processTime = Integer.valueOf(processTime);
         this.arrivalTime = Integer.valueOf(arrivalTime);
         this.id = id;
     }
 
+    public Integer getResponseTime() {
+        return responseTime;
+    }
+
+    public void setResponseTime(Integer responseTime) {
+        this.responseTime = responseTime;
+    }
+    
     public Integer getProcessTime() {
         return processTime;
     }
@@ -66,14 +74,6 @@ public class Process {
     
     public int incrementWaitingTime() { 
         return ++waitingTime;
-    }
-
-    public String getFlag() {
-        return flag;
-    }
-
-    public void setFlag(String flag) {
-        this.flag = flag;
     }
 
     @Override

@@ -49,10 +49,13 @@ public class SJF {
                 }
                 if (shortest != null) {
                     lastProcessStartTime = totalTime;
+                    if (shortest.getResponseTime() == -1) {
+                        shortest.setResponseTime(totalTime - shortest.getArrivalTime());
+                    }
                 }
                 executingProcess = shortest;
             }
-
+            
             if (executingProcess != null) {
                 // Decrementa o tempo de execução do processo atual
                 executingProcess.decrementProcessTime();
@@ -68,6 +71,7 @@ public class SJF {
                         "0"
                     );
                     finished.setWaitingTime(executingProcess.getWaitingTime());
+                    finished.setResponseTime(executingProcess.getResponseTime());
 
                     runtimeProcessesList.remove(executingProcess);
                     finishedProcessesList.add(finished);
@@ -84,6 +88,7 @@ public class SJF {
                 System.out.println("Processo em execução: " + executingProcess.getId());
                 System.out.println("Tempo restante do processo: " + executingProcess.getProcessTime());
                 System.out.println("Tempo total: " + totalTime);
+                System.out.println("Tempo de resposta do processo: " + executingProcess.getResponseTime());
             }
 
             totalTime++;
@@ -96,19 +101,20 @@ public class SJF {
 
         // Exibe a timeline ao final da execução e tempo médio de espera
         System.out.println("\nTimeline: " + timeline);
-        System.out.println("Tempo de médio de espera: " + calculateAverageWaitingTime(finishedProcessesList));
+        System.out.printf("\nTempo médio de resposta: %.2fs\n", calculateAverageResponseTime(finishedProcessesList));
+        System.out.printf("\nTempo médio de espera: %.2fs\n", calculateAverageWaitingTime(finishedProcessesList));
     }
 
     private Process checkForShortestJob() {
         if (runtimeProcessesList.isEmpty()) return null;
 
-        Process shortest = runtimeProcessesList.get(0);
+        Process shortestProcess = runtimeProcessesList.get(0);
         for (Process p : runtimeProcessesList) {
-            if (p.getProcessTime() < shortest.getProcessTime()) {
-                shortest = p;
+            if (p.getProcessTime() < shortestProcess.getProcessTime()) {
+                shortestProcess = p;
             }
         }
-        return shortest;
+        return shortestProcess;
     }
 
     private void incrementWaitingTimeForAllProcesses(Process currentProcess) {
@@ -169,14 +175,26 @@ public class SJF {
             System.out.println("Tempo de processamento restante: " + p.getProcessTime());
             System.out.println("Tempo de chegada do processo: " + p.getArrivalTime());
             System.out.println("Tempo de espera: " + p.getWaitingTime());
+            System.out.println("Tempo de resposta: " + p.getResponseTime());
         }
     }
     
-    private int calculateAverageWaitingTime(List<Process> processesList) { 
-        int total = 0;
+    private double calculateAverageWaitingTime(List<Process> processesList) { 
+        double total = 0;
         
         for(Process p : processesList) { 
             total = total + p.getWaitingTime();
+        }
+        
+        // Retorna a média
+        return total / processesList.size();
+    }
+    
+    private double calculateAverageResponseTime(List<Process> processesList) {
+        double total = 0;
+        
+        for(Process p : processesList) {
+            total = total + p.getResponseTime();
         }
         
         // Retorna a média

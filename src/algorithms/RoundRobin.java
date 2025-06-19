@@ -67,10 +67,11 @@ public class RoundRobin {
             executingProcess = runtimeProcessesQueue.peek();
             
         }
-        //.
+        
         System.out.println("\nRelatório de execução do algoritmo Round Robin:");
         System.out.println("Linha do tempo de execução: " + timeline);
-        System.out.println("Tempo médio de espera: " + calculateAverageWaitingTime(finishedProcessesList) + "s");
+        System.out.printf("\nTempo médio de resposta: %.2fs\n", calculateAverageResponseTime(finishedProcessesList));
+        System.out.printf("\nTempo médio de espera: %.2fs\n", calculateAverageWaitingTime(finishedProcessesList));
     }
 
     private void tick(boolean showDialogues, boolean fastExecutionMode) {
@@ -86,6 +87,10 @@ public class RoundRobin {
         moveArrivingProcessToRuntimeQueue();
 
         if (executingProcess != null) {
+            // Set response time if this is the first time the process is executing
+            if (executingProcess.getResponseTime() == -1) {
+                executingProcess.setResponseTime(totalTime - executingProcess.getArrivalTime());
+            }
             executingProcess.decrementProcessTime();
         }
 
@@ -94,17 +99,29 @@ public class RoundRobin {
             System.out.println("Processo em execução: " + executingProcess.getId());
             System.out.println("Tempo restante do processo: " + executingProcess.getProcessTime());
             System.out.println("Tempo de espera do processo: " + executingProcess.getWaitingTime());
+            System.out.println("Tempo de resposta do processo: " + executingProcess.getResponseTime());
             System.out.println("Tempo total: " + totalTime);
         }
         
         totalTime++;
     }
     
-    public static int calculateAverageWaitingTime(List<Process> processesList) { 
-        int total = 0;
+    private double calculateAverageWaitingTime(List<Process> processesList) { 
+        double total = 0;
         
         for(Process p : processesList) { 
             total = total + p.getWaitingTime();
+        }
+        
+        // Retorna a média
+        return total / processesList.size();
+    }
+    
+    private double calculateAverageResponseTime(List<Process> processesList) {
+        double total = 0;
+        
+        for(Process p : processesList) {
+            total = total + p.getResponseTime();
         }
         
         // Retorna a média
@@ -168,6 +185,7 @@ public class RoundRobin {
             System.out.println("ID do processo: " + p.getId());
             System.out.println("Tempo de processamento restante: " + p.getProcessTime());
             System.out.println("Tempo de chegada do processo: " + p.getArrivalTime());
+            System.out.println("Tempo de resposta do processo: " + p.getResponseTime());
         }
     }
 }
